@@ -27,26 +27,39 @@ import java.util.List;
  * @author dvali
  */
 public class OrmMain {
+    
+    public static List<Registre> peliculas = new ArrayList();
+    
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-       
-        List<Registre> peliculas = new ArrayList();
+
         DataBaseConexion conect = new DataBaseConexion();
-        Connection co = conect.conn();
-        Statement st = co.createStatement();
-        ResultSet resultado = st.executeQuery("SELECT * FROM pelicula");
+        ResultSet resultado = executeQuery(conect,"select * from pelicula");
+        peliculasAdd(resultado);
+        imprimir();
         
+    }
+    
+    
+    public static ResultSet executeQuery(DataBaseConexion dbc, String consulta) throws SQLException{
+        Connection c = dbc.conn();
+        Statement st = c.createStatement();
+        ResultSet resultado = st.executeQuery(consulta);
+        return resultado;
+    }
+    
+    public static void peliculasAdd(ResultSet r) throws SQLException{
+        while(r.next()){
+          peliculas.add(new Registre(r.getInt("idPelicula"), 
+                  r.getDouble("duracionPelicula"), r.getBoolean("pelicula3D"), 
+                  r.getString("salaCine").charAt(0), r.getString("nombrePelicula"), r.getDate("fechaEstreno")));  
         
-        while(resultado.next()){
-          peliculas.add(new Registre(resultado.getInt("idPelicula"), 
-                  resultado.getDouble("duracionPelicula"), resultado.getBoolean("pelicula3D"), 
-                  resultado.getString("salaCine").charAt(0), resultado.getString("nombrePelicula"), resultado.getDate("fechaEstreno")));  
-        
-        } resultado.close();
-        
-        for(Iterator i = peliculas.iterator(); i.hasNext();){
+        } r.close();
+    }
+    
+    public static void imprimir(){
+         for(Iterator i = peliculas.iterator(); i.hasNext();){
             System.out.println(i.next());
         }
-        
     }
         
  }
